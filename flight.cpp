@@ -94,9 +94,3 @@ void Flight::cancel_seat(string choice)
         cout << "Invalid class.\n";
     }
 }
-int main()
-{
-    Flight f;
-    f.check_availibility();
-    return 0;
-}
