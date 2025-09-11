@@ -11,6 +11,7 @@ class Aircrafts{
     string model;
     map<string,int> CabinCapacity;
     string seatmap;
+    int totalseats=0;
     
     
     
@@ -26,9 +27,9 @@ class Aircrafts{
     }
  
     int getTotalCapacity()  {
-    int total = 0;
+   
     for (auto &c : CabinCapacity) 
-        total += c.second;
+        totalseats += c.second;
     return total;
 }
 
