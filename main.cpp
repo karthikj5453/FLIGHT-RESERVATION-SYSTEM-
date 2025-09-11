@@ -39,15 +39,19 @@ class passenger{
 class Aircrafts{
 
     private:
+    string airline;
     string manufacturer;
     string model;
     map<string,int> CabinCapacity;
     string seatmap;
+   int totalseats=0;
     
     
     
     public:
-    Aircrafts(string manufacturer="",string model=" "){
+     Aircrafts(string airline="",string manufacturer="",string model=" "){
+
+        airline="airline";
         manufacturer="manu";
         model="mo";
 
@@ -58,10 +62,10 @@ class Aircrafts{
     }
  
     int getTotalCapacity()  {
-    int total = 0;
+    
     for (auto &c : CabinCapacity) 
-        total += c.second;
-    return total;
+        totalseats += c.second;
+    return totalseats;
 }
 
 void display_SeatCategories(){
@@ -147,6 +151,7 @@ public:
         cout << "Payment Information: " << payment_information << endl;
     }
 };
+
 
 
 
