@@ -72,26 +72,7 @@ void display_SeatCategories(){
     }
 };
 
-
-int main(){
-    passenger p1;
-    p1.setdata(1,"karthik","777777777","CR7");
-    
-    cout<<"Passenger details "<< endl;
-    p1.display();
-
-    p1.update_contact_info("999999999");
-
-    cout<<"\n after updating contact information" <<endl;
-    p1.display();
-
-    return 0;
-}
-
-#include <iostream>
-#include <string>
-using namespace std;
-
+\\Booking class
 class Booking{
 private:
     int booking_id;
@@ -166,6 +147,7 @@ public:
         cout << "Payment Information: " << payment_information << endl;
     }
 };
+
 
 
 
