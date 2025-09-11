@@ -128,17 +128,14 @@ int main()
         if (choice == 1)
         {
             f1->show_classes();
-            break;
         }
         else if (choice == 2)
         {
             f1->check_availibility();
-            break;
         }
         else if (choice == 3)
         {
             f1->cancel_seat();
-            break;
         }
         else if (choice == 4)
         {
@@ -146,12 +143,10 @@ int main()
             cout << "Enter class name (Business/Economy/Premium): ";
             cin >> cls;
             f1->update_price(cls);
-            break;
         }
         else if (choice == 5)
         {
             cout << "Exiting... Thank you!\n";
-            break;
         }
         else
         {
