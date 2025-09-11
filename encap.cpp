@@ -18,50 +18,50 @@ public:
         cin.ignore(); 
 
         cout<<"Enter Flight Details: ";
-        getline(cin, flight_details);
+        getline(cin,flight_details);
 
         cout<<"Enter Passenger Details: ";
-        getline(cin, passenger_details);
+        getline(cin,passenger_details);
 
         cout<<"Enter Seat Number: ";
-        getline(cin, seat_number);
+        getline(cin,seat_number);
 
         cout<<"Enter Payment Information: ";
-        getline(cin, payment_information);
+        getline(cin,payment_information);
 
         booking_status="Pending"; 
     }
 
     void confirm_booking(){
-        if(booking_status == "Cancelled") {
-            cout << "Booking " << booking_id << " was cancelled. Cannot confirm." << endl;
+        if(booking_status=="Cancelled") {
+            cout<<"Booking "<<booking_id<<"was cancelled. Cannot confirm."<<endl;
         } 
         else{
-            booking_status = "Confirmed";
-            cout << "Booking " << booking_id << " is now confirmed." << endl;
+            booking_status="Confirmed";
+            cout<<"Booking "<<booking_id<<" is now confirmed."<<endl;
         }
     }
 
     void cancel_booking(){
-        if (booking_status == "Cancelled"){
-            cout << "Booking " << booking_id << " is already cancelled." << endl;
+        if (booking_status=="Cancelled"){
+            cout<<"Booking "<<booking_id<<" is already cancelled."<< endl;
         } 
         else{
-            booking_status = "Cancelled";
-            cout << "Booking " << booking_id << " has been cancelled." << endl;
+            booking_status="Cancelled";
+            cout<<"Booking "<<booking_id<<" has been cancelled."<<endl;
         }
     }
 
     void change_seat(){
-        if (booking_status != "Confirmed") {
-            cout << "Booking " << booking_id << " is not confirmed yet. Cannot change seat." << endl;
+        if (booking_status!="Confirmed"){
+            cout<<"Booking "<<booking_id<<" is not confirmed yet. Cannot change seat."<< endl;
         } 
         else{
             string new_seat;
-            cout << "Enter new seat number: ";
+            cout<<"Enter new seat number: ";
             cin.ignore();
             getline(cin, new_seat);
-            cout << "Seat changed from " << seat_number << " to " << new_seat << " for booking " << booking_id << "." << endl;
+            cout<<"Seat changed from "<<seat_number<<" to "<<new_seat<<" for booking "<<booking_id<<"."<< endl;
             seat_number = new_seat;
         }
     }
