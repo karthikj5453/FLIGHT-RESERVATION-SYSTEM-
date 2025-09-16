@@ -1,227 +1,207 @@
 #include <bits/stdc++.h>
 using namespace std;
+
 class Passenger
 {
-private:
-    int passenger_ID;
+    int id;
     string name;
-    string contact_info;
-    string passport_details;
+    string contact;
+
 public:
-    Passenger(int id = 0, string n = "", string contact = "", string passport = "")
+    Passenger(int i = 0, string n = "Unknown", string c = "N/A")
     {
-        passenger_ID = id;
+        id = i;
         name = n;
-        contact_info = contact;
-        passport_details = passport;
+        contact = c;
     }
     ~Passenger() {}
-    void setdata(int id, string n, string contact, string passport)
+    void setData(int i, string n, string c)
     {
-        passenger_ID = id;
+        id = i;
         name = n;
-        contact_info = contact;
-        passport_details = passport;
-    }
-    void update_contact_info(string new_contact)
-    {
-        contact_info = new_contact;
-    }
-    string getDetails()
-    {
-        return "Passenger ID: " + to_string(passenger_ID) + ", Name: " + name;
+        contact = c;
     }
     void display()
     {
-        cout << "Passenger ID: " << passenger_ID
-             << " -> Name: " << name
-             << " -> Contact: " << contact_info
-             << " -> Passport: " << passport_details << endl;
+        cout << "Passenger ID: " << id
+             << " | Name: " << name
+             << " | Contact: " << contact << endl;
     }
+    friend void updateContact(Passenger &p, string newc);
+    string getName() { return name; }
 };
-class Booking
-{
-private:
-    int Booking_ID;
-    string flight_details;
-    string passenger_details;
-    string Seat_No;
-    string Status;
-    string Payment_Info;
 
-public:
-    Booking(int id = 0)
-    {
-        Booking_ID = id;
-        Status = "Pending";
-    }
-    ~Booking(){}
-    void set_bking_details(string flight, string passenger, string seat, string payment)
-    {
-        flight_details = flight;
-        passenger_details = passenger;
-        Seat_No = seat;
-        Payment_Info = payment;
-    }
-    void confirm_booking()
-    {
-        if (Status == "Cancelled")
-            cout << "Booking " << Booking_ID << " was cancelled. Cannot confirm.\n";
-        else
-        {
-            Status = "Confirmed";
-            cout << "Booking " << Booking_ID << " confirmed.\n";
-        }
-    }
-    void cancel_booking()
-    {
-        if (Status == "Cancelled")
-            cout << "Booking " << Booking_ID << " is already cancelled.\n";
-        else
-        {
-            Status = "Cancelled";
-            cout << "Booking " << Booking_ID << " cancelled.\n";
-        }
-    }
-    void change_seat(string new_seat)
-    {
-        if (Status != "Confirmed")
-            cout << "Booking " << Booking_ID << " is not confirmed yet. Cannot change seat.\n";
-        else
-        {
-            cout << "Seat changed from " << Seat_No << " to " << new_seat << " for booking " << Booking_ID << ".\n";
-            Seat_No = new_seat;
-        }
-    }
-    void display_booking()
-    {
-        cout << "\n--- Booking Details ---\n";
-        cout << "-> Booking ID: " << Booking_ID << endl;
-        cout << "-> Flight Details: " << flight_details << endl;
-        cout << "-> Passenger Details: " << passenger_details << endl;
-        cout << "-> Seat Number: " << Seat_No << endl;
-        cout << "-> Booking Status: " << Status << endl;
-        cout << "-> Payment Information: " << Payment_Info << endl;
-    }
-};
+void updateContact(Passenger &p, string newc)
+{
+    p.contact = newc;
+}
+
 class Flight
 {
-    static int booked_seats;
+    int flightNo;
+    int capacity;
+    int booked;
 
 public:
-    int flight_number, total_seats;
-    map<string, int> seat_classes;
-    string booked_class;
-    Flight(int number = 101)
+    Flight(int f = 0, int c = 100)
     {
-        flight_number = number;
-        seat_classes["Business"] = 20;
-        seat_classes["Economy"] = 50;
-        seat_classes["Premium"] = 30;
-        total_seats = 100;
-        booked_class = "";
-        cout << "Flight " << flight_number << " created.\n";
+        flightNo = f;
+        capacity = c;
+        booked = 0;
     }
     ~Flight() {}
-    void show_classes()
+    bool bookSeat()
     {
-        cout << "\nAvailable seat classes in Flight " << flight_number << ":\n";
-        for (auto &c : seat_classes)
-            cout << " - " << c.first << " : " << c.second << " seats available\n";
-    }
-    void update_price(string cls)
-    {
-        int total = seat_classes[cls];
-        int available = seat_classes[cls];
-        double occupancy = (double)(total - available) / total;
-        int basePrice = (cls == "Business") ? 5000 : (cls == "Economy" ? 3000 : 4500);
-        int price = basePrice + (int)(basePrice * occupancy * 0.5);
-        cout << "Updated price for " << cls << " class: ₹" << price << endl;
-    }
-    bool book_seat(string cls)
-    {
-        if (seat_classes.find(cls) == seat_classes.end() || seat_classes[cls] <= 0)
+        if (booked < capacity)
         {
-            cout << "Sorry, no seats available in " << cls << ".\n";
-            return false;
+            booked++;
+            return true;
         }
-        seat_classes[cls]--;
-        booked_class = cls;
-        cout << "Seat booked in " << cls << " class of Flight " << flight_number << ".\n";
-        return true;
+        return false;
     }
-    void cancel_seat()
+    void cancelSeat()
     {
-        if (booked_class == "")
-        {
-            cout << "No booking to cancel.\n";
-            return;
-        }
-        seat_classes[booked_class]++;
-        cout << "Seat in " << booked_class << " class cancelled.\n";
-        booked_class = "";
+        if (booked > 0)
+            booked--;
     }
+    void display()
+    {
+        cout << "Flight " << flightNo
+             << " | Capacity: " << capacity
+             << " | Booked: " << booked << endl;
+    }
+    int getNo() { return flightNo; }
 };
-int Flight::booked_seats = 0;
-class Aircrafts
+
+class Booking
 {
-private:
-    string manufacturer;
-    string model;
-    map<string, int> cabinCapacity;
-    int totalseats;
+    int bookingID;
+    string seat;
+    Passenger *passenger;
+    Flight *flight;
 
 public:
-    Aircrafts(string manu = "Unknown", string mo = "Unknown")
+    Booking(int id = 0, string s = "NA", Passenger *p = nullptr, Flight *f = nullptr)
     {
-        manufacturer = manu;
-        model = mo;
-        totalseats = 0;
-        cout << "Aircraft (" << manufacturer << " " << model << ") created.\n";
+        bookingID = id;
+        seat = s;
+        passenger = p;
+        flight = f;
     }
-    ~Aircrafts() {}
-    void addCabin(string cabinClass, int capacity)
+    ~Booking() {}
+    void display()
     {
-        cabinCapacity[cabinClass] = capacity;
-    }
-    int gettotalCapacity()
-    {
-        totalseats = 0;
-        for (auto &c : cabinCapacity)
-            totalseats += c.second;
-        return totalseats;
-    }
-    void display_SeatCategories()
-    {
-        cout << "\nCabin Categories of " << manufacturer << " " << model << ":\n";
-        for (auto &a : cabinCapacity)
-        {
-            cout << " - " << a.first << " : " << a.second << " seats\n";
-        }
+        cout << "Booking ID: " << bookingID
+             << " | Seat: " << seat << endl;
+        if (passenger)
+            passenger->display();
+        if (flight)
+            flight->display();
     }
 };
+
 int main()
 {
-    cout << "\n===== AIRLINE MANAGEMENT DEMO SYSTEM =====\n";
-    Passenger p1(1, "Karthik", "777777777", "CR7");
-    p1.display();
-    p1.update_contact_info("999999999");
-    cout << "After contact update:\n";
-    p1.display();
-    Flight f1(501);
-    f1.show_classes();
-    f1.book_seat("Economy");
-    f1.update_price("Economy");
-    Aircrafts a1("Emirates Airways", "A380");
-    a1.addCabin("Economy", 150);
-    a1.addCabin("Business", 30);
-    a1.display_SeatCategories();
-    cout << "Total Capacity: " << a1.gettotalCapacity() << endl;
-    Booking b1(1001);
-    b1.set_bking_details("Emirates", p1.getDetails(), "12A", "Paid via Credit Card");
-    b1.confirm_booking();
-    b1.change_seat("14A");
-    b1.display_booking();
-    b1.cancel_booking();
+    Passenger *p = nullptr;
+    Flight *f = nullptr;
+    Booking *b = nullptr;
+
+    int choice;
+    do
+    {
+        cout << "\n===== Airline Menu =====\n";
+        cout << "1. Add Passenger\n";
+        cout << "2. Show Passenger\n";
+        cout << "3. Update Passenger Contact\n";
+        cout << "4. Create Flight\n";
+        cout << "5. Show Flight\n";
+        cout << "6. Book Seat\n";
+        cout << "7. Cancel Seat\n";
+        cout << "8. Show Booking\n";
+        cout << "0. Exit\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        if (choice == 1)
+        {
+            int id;
+            string name, contact;
+            cout << "Enter ID Name Contact: ";
+            cin >> id >> name >> contact;
+            delete p;
+            p = new Passenger(id, name, contact);
+        }
+        else if (choice == 2)
+        {
+            if (p)
+                p->display();
+            else
+                cout << "No passenger.\n";
+        }
+        else if (choice == 3)
+        {
+            if (p)
+            {
+                string nc;
+                cout << "Enter new contact: ";
+                cin >> nc;
+                updateContact(*p, nc);
+            }
+            else
+                cout << "No passenger.\n";
+        }
+        else if (choice == 4)
+        {
+            int no, cap;
+            cout << "Enter FlightNo Capacity: ";
+            cin >> no >> cap;
+            delete f;
+            f = new Flight(no, cap);
+        }
+        else if (choice == 5)
+        {
+            if (f)
+                f->display();
+            else
+                cout << "No flight.\n";
+        }
+        else if (choice == 6)
+        {
+            if (p && f)
+            {
+                if (f->bookSeat())
+                {
+                    int bid;
+                    string seat;
+                    cout << "Enter BookingID and Seat: ";
+                    cin >> bid >> seat;
+                    delete b;
+                    b = new Booking(bid, seat, p, f);
+                    cout << "Booking successful.\n";
+                }
+                else
+                    cout << "Flight full.\n";
+            }
+            else
+                cout << "Need passenger and flight first.\n";
+        }
+        else if (choice == 7)
+        {
+            if (f)
+                f->cancelSeat();
+            cout << "Seat cancelled (if any).\n";
+        }
+        else if (choice == 8)
+        {
+            if (b)
+                b->display();
+            else
+                cout << "No booking.\n";
+        }
+    } while (choice != 0);
+
+    delete p;
+    delete f;
+    delete b;
     return 0;
 }
