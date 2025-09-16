@@ -1,80 +1,107 @@
 #include <iostream>
 #include <map>
-#include <fstream>
-
+#include <vector>
 using namespace std;
 
 class Aircrafts {
 private:
-    string airline;
     string manufacturer;
     string model;
-    map<string,int> CabinCapacity;
-    string seatmap;
-    int totalseats = 0;
+    map<string, vector<string>> seatMap;  //TODO: NEED TO IMRPOVE THIS (ADD FILE HANDLING,OR PROPER LAYOUT)
 
 public:
-    Aircrafts() {}
-
-    Aircrafts(string a = " ", string m = " ", string mo = " ") {
-        airline = a;
-        manufacturer = m;
-        model = mo;
+    Aircrafts(string manufacturer = "", string model = "") {
+        this->manufacturer = manufacturer;
+        this->model = model;
+        generateSeatMap();  
     }
 
-    void addCabin(string cabinClass, int capacity) {
-        CabinCapacity[cabinClass] = capacity;
-    }
+    ~Aircrafts() { }
 
-    int getTotalCapacity() {
-        totalseats = 0;  
-        for (auto &c : CabinCapacity) 
-            totalseats += c.second;
-        return totalseats;
-    }
-
-    void display_SeatCategories() {
-        for(auto &a : CabinCapacity){
-            cout << a.first << " : " << a.second << endl;
+   
+    void displaySeatMap() {
+        for (auto &cabin : seatMap) {
+            cout << cabin.first << " Class: ";
+            for (auto &seat : cabin.second) cout << seat << " ";
+            cout << endl;
         }
     }
 
-    void printAircraftdetails() {
-        cout << airline << endl;
-        cout << manufacturer << endl;
-        cout << model << endl;
-  
-        for (auto &entry : CabinCapacity) {
-            cout << entry.first << " : " << entry.second << endl;
+    
+    void displaySeatMap(string cabinClass) {
+        if (seatMap.count(cabinClass)) {
+            cout << cabinClass << " Class: ";
+            for (auto &seat : seatMap[cabinClass]) cout << seat << " ";
+            cout << endl;
+        } else {
+            cout << "No such cabin class.\n";
         }
+    }
 
-        cout << "Total Seats: " << getTotalCapacity() << endl;
+
+    friend void bookSeat(Aircrafts &a, string cabin, string seatNo);
+
+private:
+    void generateSeatMap() {
+        if (model == "Boeing737") { //TODO:  trying more codes and models and file handling 
+            
+            for (int row = 1; row <= 4; row++) {
+                for (char s = 'A'; s <= 'F'; s++) {
+                    seatMap["Business"].push_back(to_string(row) + s);
+                }
+            }
+
+            
+            for (int row = 5; row <= 30; row++) {
+                for (char s = 'A'; s <= 'F'; s++) {
+                    seatMap["Economy"].push_back(to_string(row) + s);
+                }
+            }
+        }
     }
 };
 
+
+void bookSeat(Aircrafts &a, string cabin, string seatNo) {
+    for (auto &seat : a.seatMap[cabin]) {
+        if (seat == seatNo) {
+            if (seat == "X") {
+                cout << "Seat already booked!\n";
+                return;
+            }
+            seat = "X";
+            cout << "Seat " << seatNo << " booked successfully!\n";
+            return;
+        }
+    }
+    cout << "Invalid seat number.\n";
+}
+
 int main() {
-    
-    Aircrafts* a1 = new Aircrafts("Indigo", "Airbus", "A320");
-    a1->addCabin("Economy", 180);
-    a1->addCabin("Business", 20);
-    a1->printAircraftdetails();
-    a1->display_SeatCategories();
-    a1->getTotalCapacity();
-    
+    Aircrafts* a1 = new Aircrafts("Boeing", "Boeing737");
 
-    cout << endl;
+    cout << "Initial seat map (partial display):\n";
+    a1->displaySeatMap("Business");
+    a1->displaySeatMap("Economy");
 
-    Aircrafts* a2 = new Aircrafts("Emirates", "Boeing", "777");
-    a2->addCabin("Economy", 300);
-    a2->addCabin("Business", 50);
-    a2->addCabin("First", 10);
-    a2->printAircraftdetails();
-    
 
-  
-    
+    string cabin, seatNo;
+    char choice = 'y';
+    while (choice == 'y') {
+        cout << "\nEnter Cabin (Business/Economy): ";
+        cin >> cabin;
+        cout << "Enter Seat Number (e.g., 3A, 15C): ";
+        cin >> seatNo;
+
+        bookSeat(*a1, cabin, seatNo);
+
+        cout << "\nUpdated " << cabin << " Class:\n";
+        a1->displaySeatMap(cabin);
+
+        cout << "\nBook another seat? (y/n): ";
+        cin >> choice;
+    }
+
     delete a1;
-    delete a2;
-
     return 0;
 }
