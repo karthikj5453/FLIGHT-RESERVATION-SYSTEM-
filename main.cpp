@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
+
 class Passenger
 {
     int id;
@@ -10,15 +11,22 @@ class Passenger
 public:
     Passenger(int i = 0, string n = "Unknown", string c = "N/A", string g = "N/A", int a = 0)
         : id(i), name(n), contact(c), gmail(g), age(a) {}
+
     int getID() { return id; }
     string getName() { return name; }
     int getAge() { return age; }
-    void display() { cout << id << " | " << name << " | " << age << " | " << contact << " | " << gmail << endl; }
+
+    void display()
+    {
+        cout << id << " | " << name << " | " << age << " | " << contact << " | " << gmail << endl;
+    }
+
     void saveToFile()
     {
         ofstream fout("passengers.csv", ios::app);
         fout << id << "," << name << "," << age << "," << contact << "," << gmail << "\n";
     }
+
     static Passenger *getPassengerByID(int pid)
     {
         ifstream fin("passengers.csv");
@@ -41,7 +49,56 @@ public:
         }
         return nullptr;
     }
+
+    friend void updatePassengerInfo(Passenger &p);
 };
+
+void updatePassengerInfo(Passenger &p)
+{
+    string input;
+    int age;
+
+    cin.ignore();
+    cout << "Enter new Name (current: " << p.name << "): ";
+    getline(cin, input);
+    if (!input.empty())
+        p.name = input;
+
+    cout << "Enter new Age (current: " << p.age << "): ";
+    cin >> age;
+    if (age > 0)
+        p.age = age;
+
+    cin.ignore();
+    cout << "Enter new Contact (current: " << p.contact << "): ";
+    getline(cin, input);
+    if (!input.empty())
+        p.contact = input;
+
+    cout << "Enter new Gmail (current: " << p.gmail << "): ";
+    getline(cin, input);
+    if (!input.empty())
+        p.gmail = input;
+
+    vector<string> lines;
+    ifstream fin("passengers.csv");
+    string line;
+    while (getline(fin, line))
+    {
+        stringstream ss(line);
+        string token;
+        getline(ss, token, ',');
+        if (stoi(token) == p.id)
+            line = to_string(p.id) + "," + p.name + "," + to_string(p.age) + "," + p.contact + "," + p.gmail;
+        lines.push_back(line);
+    }
+    fin.close();
+    ofstream fout("passengers.csv");
+    for (auto &l : lines)
+        fout << l << "\n";
+    fout.close();
+    cout << "Passenger info updated successfully!\n";
+}
 
 class Flight
 {
@@ -52,10 +109,13 @@ class Flight
 
 public:
     Flight(int fn = 0, string f = "NA", string t = "NA", string dep = "00:00", string arr = "00:00", int ce = 100, int cb = 50, int cf = 10)
-        : flightNo(fn), from(f), to(t), depTime(dep), arrTime(arr), capacityE(ce), capacityB(cb), capacityF(cf), bookedE(0), bookedB(0), bookedF(0) {}
+        : flightNo(fn), from(f), to(t), depTime(dep), arrTime(arr), capacityE(ce), capacityB(cb), capacityF(cf),
+          bookedE(0), bookedB(0), bookedF(0) {}
+
     int getFlightNo() { return flightNo; }
     string getFrom() { return from; }
     string getTo() { return to; }
+
     bool bookSeat(string cls, int num)
     {
         if (cls == "E" && bookedE + num <= capacityE)
@@ -75,6 +135,7 @@ public:
         }
         return false;
     }
+
     bool cancelSeat(string cls, int num)
     {
         if (cls == "E" && bookedE - num >= 0)
@@ -94,7 +155,13 @@ public:
         }
         return false;
     }
-    void display() { cout << flightNo << " | " << from << " -> " << to << " | " << depTime << " - " << arrTime << "\nE: " << bookedE << "/" << capacityE << " B: " << bookedB << "/" << capacityB << " F: " << bookedF << "/" << capacityF << endl; }
+
+    void display()
+    {
+        cout << flightNo << " | " << from << " -> " << to << " | " << depTime << " - " << arrTime << "\n";
+        cout << "E: " << bookedE << "/" << capacityE << " B: " << bookedB << "/" << capacityB << " F: " << bookedF << "/" << capacityF << endl;
+    }
+
     void updateFile()
     {
         vector<string> lines;
@@ -115,6 +182,7 @@ public:
         for (auto &l : lines)
             fout << l << "\n";
     }
+
     static vector<Flight *> loadFlights()
     {
         vector<Flight *> flights;
@@ -164,8 +232,11 @@ class Booking
     vector<pair<string, int>> companions;
 
 public:
-    Booking(string p = "", Passenger *psg = nullptr, Flight *f = nullptr, string c = "E", int s = 1) : pnr(p), mainP(psg), flight(f), cls(c), seats(s) {}
+    Booking(string p = "", Passenger *psg = nullptr, Flight *f = nullptr, string c = "E", int s = 1)
+        : pnr(p), mainP(psg), flight(f), cls(c), seats(s) {}
+
     void addCompanion(string n, int a) { companions.push_back({n, a}); }
+
     void display()
     {
         cout << "PNR: " << pnr << " | Class: " << cls << " | Seats: " << seats << "\nMain Passenger:\n";
@@ -178,6 +249,7 @@ public:
         }
         flight->display();
     }
+
     void saveToFile()
     {
         ofstream fout("bookings.csv", ios::app);
@@ -186,6 +258,7 @@ public:
             fout << "," << x.first << ":" << x.second;
         fout << "\n";
     }
+
     static string generatePNR()
     {
         string s = "PNR";
@@ -203,6 +276,7 @@ void pressEnter()
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
 }
+
 bool validIntInput(int &n)
 {
     cin >> n;
@@ -219,15 +293,11 @@ int main()
 {
     vector<Flight *> flights = Flight::loadFlights();
     int choice;
+
     do
     {
         cout << "\n===== Airline Menu =====\n";
-        cout << "1. Add Passenger\n";
-        cout << "2. Show Passenger\n";
-        cout << "3. Book Flight\n";
-        cout << "4. Cancel Booking\n";
-        cout << "5. Show Bookings\n";
-        cout << "0. Exit\n";
+        cout << "1. Add Passenger\n2. Show Passenger\n3. Book Flight\n4. Cancel Booking\n5. Show Bookings\n6. Update Passenger Info\n0. Exit\n";
         cout << "Enter choice: ";
         if (!validIntInput(choice))
         {
@@ -246,18 +316,20 @@ int main()
                 pressEnter();
                 continue;
             }
+            cin.ignore();
             cout << "Enter Name: ";
-            cin >> name;
+            getline(cin, name);
             cout << "Enter Age: ";
             if (!validIntInput(age))
             {
                 pressEnter();
                 continue;
             }
+            cin.ignore();
             cout << "Enter Contact: ";
-            cin >> contact;
+            getline(cin, contact);
             cout << "Enter Gmail: ";
-            cin >> gmail;
+            getline(cin, gmail);
             Passenger *p = new Passenger(id, name, contact, gmail, age);
             p->saveToFile();
             delete p;
@@ -404,7 +476,30 @@ int main()
             fin.close();
             pressEnter();
         }
+        else if (choice == 6)
+        {
+            int pid;
+            cout << "Enter Passenger ID to update info: ";
+            if (!validIntInput(pid))
+            {
+                pressEnter();
+                continue;
+            }
+            Passenger *p = Passenger::getPassengerByID(pid);
+            if (!p)
+            {
+                cout << "Passenger not found\n";
+                pressEnter();
+                continue;
+            }
+            updatePassengerInfo(*p);
+            delete p;
+            pressEnter();
+        }
+
     } while (choice != 0);
+
     for (auto f : flights)
         delete f;
 }
+
