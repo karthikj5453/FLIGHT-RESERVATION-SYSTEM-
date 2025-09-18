@@ -1,107 +1,102 @@
 #include <iostream>
-#include <map>
 #include <vector>
 using namespace std;
 
-class Aircrafts {
-private:
-    string manufacturer;
-    string model;
-    map<string, vector<string>> seatMap;  //TODO: NEED TO IMRPOVE THIS (ADD FILE HANDLING,OR PROPER LAYOUT)
+class Passenger
+{
+    int id;
+    string name, contact, gmail;
+    int age;
 
 public:
-    Aircrafts(string manufacturer = "", string model = "") {
-        this->manufacturer = manufacturer;
-        this->model = model;
-        generateSeatMap();  
+    Passenger(int i = 0, string n = "Unknown", string c = "N/A", string g = "N/A", int a = 0)
+        : id(i), name(n), contact(c), gmail(g), age(a) {}
+
+    int getID() { return id; }
+    string getName() { return name; }
+    int getAge() { return age; }
+
+    void display()
+    {
+        cout << id << " | " << name << " | " << age << " | " << contact << " | " << gmail << endl;
     }
 
-    ~Aircrafts() { }
+    void saveToFile()
+    {
+        ofstream fout("passengers.csv", ios::app);
+        fout << id << "," << name << "," << age << "," << contact << "," << gmail << "\n";
+    }
 
-   
-    void displaySeatMap() {
-        for (auto &cabin : seatMap) {
-            cout << cabin.first << " Class: ";
-            for (auto &seat : cabin.second) cout << seat << " ";
-            cout << endl;
+    static Passenger *getPassengerByID(int pid)  //todo: returns a pointer to a passenger object
+
+    {
+        ifstream fin("passengers.csv");
+        string line;
+        int id, age;
+        string name, contact, gmail;
+        while (getline(fin, line))
+        {
+            stringstream ss(line);
+            string token;
+            getline(ss, token, ',');
+            id = stoi(token);
+            getline(ss, name, ',');
+            getline(ss, token, ',');
+            age = stoi(token);
+            getline(ss, contact, ',');
+            getline(ss, gmail, ',');
+            if (id == pid)
+                return new Passenger(id, name, contact, gmail, age);
         }
+        return nullptr;
     }
 
-    
-    void displaySeatMap(string cabinClass) {
-        if (seatMap.count(cabinClass)) {
-            cout << cabinClass << " Class: ";
-            for (auto &seat : seatMap[cabinClass]) cout << seat << " ";
-            cout << endl;
-        } else {
-            cout << "No such cabin class.\n";
-        }
-    }
-
-
-    friend void bookSeat(Aircrafts &a, string cabin, string seatNo);
-
-private:
-    void generateSeatMap() {
-        if (model == "Boeing737") { //TODO:  trying more codes and models and file handling 
-            
-            for (int row = 1; row <= 4; row++) {
-                for (char s = 'A'; s <= 'F'; s++) {
-                    seatMap["Business"].push_back(to_string(row) + s);
-                }
-            }
-
-            
-            for (int row = 5; row <= 30; row++) {
-                for (char s = 'A'; s <= 'F'; s++) {
-                    seatMap["Economy"].push_back(to_string(row) + s);
-                }
-            }
-        }
-    }
+    friend void updatePassengerInfo(Passenger &p);
 };
 
+void updatePassengerInfo(Passenger &p)
+{
+    string input;
+    int age;
 
-void bookSeat(Aircrafts &a, string cabin, string seatNo) {
-    for (auto &seat : a.seatMap[cabin]) {
-        if (seat == seatNo) {
-            if (seat == "X") {
-                cout << "Seat already booked!\n";
-                return;
-            }
-            seat = "X";
-            cout << "Seat " << seatNo << " booked successfully!\n";
-            return;
-        }
+    cin.ignore();
+    cout << "Enter new Name (current: " << p.name << "): ";
+    getline(cin, input);
+    if (!input.empty())
+        p.name = input;
+
+    cout << "Enter new Age (current: " << p.age << "): ";
+    cin >> age;
+    if (age > 0)
+        p.age = age;
+
+    cin.ignore();
+    cout << "Enter new Contact (current: " << p.contact << "): ";
+    getline(cin, input);
+    if (!input.empty())
+        p.contact = input;
+
+    cout << "Enter new Gmail (current: " << p.gmail << "): ";
+    getline(cin, input);
+    if (!input.empty())
+        p.gmail = input;
+
+    vector<string> lines;
+    ifstream fin("passengers.csv");
+    string line;
+    while (getline(fin, line))
+    {
+        stringstream ss(line);
+        string token;
+        getline(ss, token, ',');
+        if (stoi(token) == p.id)
+            line = to_string(p.id) + "," + p.name + "," + to_string(p.age) + "," + p.contact + "," + p.gmail;
+        lines.push_back(line);
     }
-    cout << "Invalid seat number.\n";
-}
-
-int main() {
-    Aircrafts* a1 = new Aircrafts("Boeing", "Boeing737");
-
-    cout << "Initial seat map (partial display):\n";
-    a1->displaySeatMap("Business");
-    a1->displaySeatMap("Economy");
-
-
-    string cabin, seatNo;
-    char choice = 'y';
-    while (choice == 'y') {
-        cout << "\nEnter Cabin (Business/Economy): ";
-        cin >> cabin;
-        cout << "Enter Seat Number (e.g., 3A, 15C): ";
-        cin >> seatNo;
-
-        bookSeat(*a1, cabin, seatNo);
-
-        cout << "\nUpdated " << cabin << " Class:\n";
-        a1->displaySeatMap(cabin);
-
-        cout << "\nBook another seat? (y/n): ";
-        cin >> choice;
-    }
-
-    delete a1;
-    return 0;
+    fin.close();
+    ofstream fout("passengers.csv");
+    for (auto &l : lines)
+        fout << l << "\n";
+    fout.close();
+    cout << "Passenger info updated successfully!\n";
 }
