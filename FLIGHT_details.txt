@@ -1,0 +1,16 @@
+FLIGHT NUMBER : 3
+AIRLINE : RAFEAL
+FROM : DIU
+DESTINATION : PUNE
+DATE : 03/02/2025
+TIME : 12:00
+PRICE : 2500
+-------------------------------------
+FLIGHT NUMBER : 1490
+AIRLINE : AirIndia
+FROM : DIU
+DESTINATION : MUMBAI
+DATE : 12/03/2026
+TIME : 13:09
+PRICE : 3500
+-------------------------------------
