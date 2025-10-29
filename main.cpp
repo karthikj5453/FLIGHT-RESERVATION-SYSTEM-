@@ -1,561 +1,846 @@
-    #include<bits/stdc++.h>
-    using namespace std;
-    class Passenger
-    {
-        int id;
-        string name, contact, gmail;
-        int age;
+#include<bits/stdc++.h>
+using namespace std;
 
+class USER{
+    protected:
+        string USER_ID;
+        string USER_NAME;
+        string USER_PASS;
+        
     public:
-        Passenger(int i = 0, string n = "Unknown", string c = "N/A", string g = "N/A", int a = 0)
-            : id(i), name(n), contact(c), gmail(g), age(a) {}
-        int getID() { return id; }
-        string getName() { return name; }
-        int getAge() { return age; }
-        void display()
-        {
-            cout << id << " | " << name << " | " << age << " | " << contact << " | " << gmail << endl;
+        virtual bool LOGIN()=0;
+        virtual void REGISTER_USER()=0;
+
+        string GET_ID(){
+            return USER_ID;
         }
-        void saveToFile()
-        {
-            ofstream fout("passengers.csv", ios::app);
-            fout << id << "," << name << "," << age << "," << contact << "," << gmail << "\n";
-            fout.close();
+
+        string GET_NAME(){
+            return USER_NAME;
         }
-        static Passenger *getPassengerByID(int pid)
-        {
-            ifstream fin("passengers.csv");
-            string line;
-            int id, age;
-            string name, contact, gmail;
-            while (getline(fin, line))
-            {
-                stringstream ss(line);
-                string token;
-                getline(ss, token, ',');
-                id = stoi(token);
-                getline(ss, name, ',');
-                getline(ss, token, ',');
-                age = stoi(token);
-                getline(ss, contact, ',');
-                getline(ss, gmail, ',');
-                if (id == pid)
-                {
-                    fin.close();
-                    return new Passenger(id, name, contact, gmail, age);
+};
+
+class ADMIN_CLASS:public USER{
+    public:
+        bool LOGIN() override{
+            cout<<"ENTER THE ADMIN ID : ";
+            cin>>USER_ID;
+
+            cout<<"ENTER THE ADMIN_NAME : ";
+            cin>>USER_NAME;
+
+            cout<<"ENTER THE ADMIN PASSWORD : ";
+            cin>>USER_PASS;
+
+        ifstream in("ADMIN_DETAILS.txt");
+        if(!in){
+            cout<<"\nNO ADMIN FOUND!!!!!!\nPLEASE REGISTER FIRST!!!!!!!\n";
+            return false;
+        }
+
+        string ADMIN_ID;
+        string NAME;
+        string ADMIN_PASS;
+
+        string line;
+        bool found=false;
+
+        while(getline(in,line)){
+
+            if(line.find("ADMIN ID : ")!=string::npos){
+                ADMIN_ID=line.substr(line.find(":") + 2); 
+                getline(in,line); 
+
+                NAME=line.substr(line.find(":") + 2);
+                getline(in,line); 
+                
+                ADMIN_PASS=line.substr(line.find(":") + 2);
+
+                if(ADMIN_ID==USER_ID && ADMIN_PASS==USER_PASS){
+                    USER_NAME=NAME;
+                    cout<<"\nADMIN LOGIN SUCCESFULLY!!!!!!!\n";
+                    found=true;
+                    break;
                 }
             }
-            fin.close();
-            return nullptr;
         }
 
-        friend void updatePassengerInfo(Passenger &p);
-    };
-    void updatePassengerInfo(Passenger &p)
-    {
-        string input;
-        int age;
-        cin.ignore();
-        cout << "Enter new Name (current: " << p.name << "): ";
-        getline(cin, input);
-        if (!input.empty())
-            p.name = input;
-
-        cout << "Enter new Age (current: " << p.age << "): ";
-        cin >> age;
-        if (age > 0)
-            p.age = age;
-        cin.ignore();
-        cout << "Enter new Contact (current: " << p.contact << "): ";
-        getline(cin, input);
-
-        if (!input.empty())
-            p.contact = input;
-        cout << "Enter new Gmail (current: " << p.gmail << "): ";
-        getline(cin, input);
-        if (!input.empty())
-            p.gmail = input;
-        vector<string> lines;
-        ifstream fin("passengers.csv");
-        string line;
-        while (getline(fin, line))
-        {
-            stringstream ss(line);
-            string token;
-            getline(ss, token, ',');
-            if (stoi(token) == p.id)
-                line = to_string(p.id) + "," + p.name + "," + to_string(p.age) + "," + p.contact + "," + p.gmail;
-            lines.push_back(line);
-        }
-        fin.close();
-        ofstream fout("passengers.csv");
-        for (auto &l : lines)
-            fout << l << "\n";
-        fout.close();
-        cout << "Passenger info updated successfully!\n";
-    }
-    class Flight
-    {
-        int flightNo;
-        string from, to, depTime, arrTime;
-        int capacityE, capacityB, capacityF;
-        int bookedE, bookedB, bookedF;
-
-    public:
-        Flight(int fn = 0, string f = "NA", string t = "NA", string dep = "00:00", string arr = "00:00", int ce = 100, int cb = 50, int cf = 10)
-            : flightNo(fn), from(f), to(t), depTime(dep), arrTime(arr), capacityE(ce), capacityB(cb), capacityF(cf),
-            bookedE(0), bookedB(0), bookedF(0) {}
-        int getFlightNo() { return flightNo; }
-        string getFrom() { return from; }
-        string getTo() { return to; }
-        bool bookSeat(string cls, int num)
-        {
-            if(cls == "E" && bookedE + num <= capacityE)
-            {
-                bookedE += num;
-                return true;
-            }
-            if(cls == "B" && bookedB + num <= capacityB)
-            {
-                bookedB += num;
-                return true;
-            }
-            if(cls == "F" && bookedF + num <= capacityF)
-            {
-                bookedF += num;
-                return true;
-            }
+        if(!found){
+            cout<<"\nINVALID ADMIN DETAILS!!!!! SORRY!!!!!\n";
             return false;
         }
-        bool cancelSeat(string cls, int num)
-        {
-            if(cls == "E" && bookedE - num >= 0)
-            {
-                bookedE -= num;
-                return true;
-            }
-            if(cls == "B" && bookedB - num >= 0)
-            {
-                bookedB -= num;
-                return true;
-            }
-            if(cls == "F" && bookedF - num >= 0)
-            {
-                bookedF -= num;
-                return true;
-            }
-            return false;
-        }
-        void display()
-        {
-            cout << flightNo << " | " << from << " -> " << to << " | " << depTime << " - " << arrTime << "\n";
-            cout << "E: " << bookedE << "/" << capacityE << " B: " << bookedB << "/" << capacityB << " F: " << bookedF << "/" << capacityF << endl;
-        }
-        void updateFile()
-        {
-            vector<string> lines;
-            ifstream fin("flights.csv");
-            string line;
-            while (getline(fin, line))
-            {
-                stringstream ss(line);
-                string token;
-                getline(ss, token, ',');
-                int fn = stoi(token);
-                if (fn == flightNo)
-                    line = to_string(flightNo) + "," + from + "," + to + "," + depTime + "," + arrTime + "," + to_string(capacityE) + "," + to_string(capacityB) + "," + to_string(capacityF) + "," + to_string(bookedE) + "," + to_string(bookedB) + "," + to_string(bookedF);
-                lines.push_back(line);
-            }
 
-            fin.close();
-            ofstream fout("flights.csv");
-            for (auto &l : lines)
-                fout << l << "\n";
-            fout.close();
-        }
-        static vector<Flight *> loadFlights()
-        {
-            vector<Flight *> flights;
-            ifstream fin("flights.csv");
-            string line;
-            while (getline(fin, line))
-            {
-                stringstream ss(line);
-                string token;
-                int fn, ce, cb, cf, be, bb, bf;
-                string from, to, dep, arr;
-                getline(ss, token, ',');
-                fn = stoi(token);
-                getline(ss, from, ',');
-                getline(ss, to, ',');
-                getline(ss, dep, ',');
-                getline(ss, arr, ',');
-                getline(ss, token, ',');
-                ce = stoi(token);
-                getline(ss, token, ',');
-                cb = stoi(token);
-                getline(ss, token, ',');
-                cf = stoi(token);
-                getline(ss, token, ',');
-                be = stoi(token);
-                getline(ss, token, ',');
-                bb = stoi(token);
-                getline(ss, token, ',');
-                bf = stoi(token);
-                Flight *f = new Flight(fn, from, to, dep, arr, ce, cb, cf);
-
-                f->bookedE = be;
-                f->bookedB = bb;
-                f->bookedF = bf;
-                flights.push_back(f);
-            }
-            fin.close();
-            return flights;
-        }
-    };
-    class Booking
-    {
-        string pnr;
-        Passenger *mainP;
-        Flight *flight;
-        string cls;
-        int seats;
-        vector<pair<string, int>> companions;
-
-    public:
-        Booking(string p = "", Passenger *psg = nullptr, Flight *f = nullptr, string c = "E", int s = 1)
-            : pnr(p), mainP(psg), flight(f), cls(c), seats(s) {}
-
-        void addCompanion(string n, int a) { companions.push_back({n, a}); }
-        void display()
-        {
-            cout << "PNR: " << pnr << " | Class: " << cls << " | Seats: " << seats << "\nMain Passenger:\n";
-            mainP->display();
-            if (!companions.empty())
-            {
-                cout << "Companions:\n";
-                for (auto &x : companions)
-                    cout << x.first << " | " << x.second << endl;
-            }
-            flight->display();
-        }
-        void saveToFile()
-        {
-            ofstream fout("bookings.csv", ios::app);
-            fout << pnr << "," << mainP->getID() << "," << flight->getFlightNo() << "," << cls << "," << seats;
-            for (auto &x : companions)
-                fout << "," << x.first << ":" << x.second;
-            fout << "\n";
-            fout.close();
-        }
-        static string generatePNR()
-        {
-            string s = "PNR";
-            for (int i = 0; i < 6; i++)
-                s += char('A' + rand() % 26);
-            for (int i = 0; i < 3; i++)
-                s += char('0' + rand() % 10);
-            return s;
-        }
-    };
-    void pressEnter()
-    {
-        cout << "\nPress ENTER...";
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cin.get();
-    }
-    bool validIntInput(int &n)
-    {
-        cin >> n;
-        if (cin.fail())
-        {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            return false;
-        }
         return true;
     }
-    int main()
-    {
-        srand(time(0));
-        vector<Flight *> flights = Flight::loadFlights();
-        int choice;
-        do
-        {
-            cout << "\n===== Airline Menu =====\n";
-            cout << "1. Add Passenger\n2. Show Passenger\n3. Book Flight\n4. Cancel Booking\n5. Show Bookings\n6. Update Passenger Info\n0. Exit\n";
-            cout << "Enter choice: ";
-            if (!validIntInput(choice))
-            {
-                cout << "Invalid choice!\n";
-                pressEnter();
-                continue;
-            }
-            if (choice == 1)
-            {
-                int id, age;
-                string name, contact, gmail;
-                cout << "Enter ID: ";
-                if (!validIntInput(id))
-                {
-                    pressEnter();
-                    continue;
-                }
-                cin.ignore();
-                cout << "Enter Name: ";
-                getline(cin, name);
-                cout << "Enter Age: ";
-                if (!validIntInput(age))
-                {
-                    pressEnter();
-                    continue;
-                }
-                cin.ignore();
-                cout << "Enter Contact: ";
-                getline(cin, contact);
-                cout << "Enter Gmail: ";
-                getline(cin, gmail);
-                Passenger *p = new Passenger(id, name, contact, gmail, age);
-                p->saveToFile();
-                cout << "Passenger added.\n";
-                char bookNow;
-                cout << "Do you want to book a flight for this passenger? (Y/N): ";
-                cin >> bookNow;
-                if (bookNow == 'Y' || bookNow == 'y')
-                {
-                    string src, dest, cls;
-                    int seats, numComp;
-                    cout << "Enter Source and Destination: ";
-                    cin >> src >> dest;
-                    vector<Flight *> avail;
-                    for (auto f : flights)
-                        if (f->getFrom() == src && f->getTo() == dest)
-                            avail.push_back(f);
-                    if (avail.empty())
-                    {
-                        cout << "No flights available\n";
-                        delete p;
-                        pressEnter();
-                        continue;
-                    }
-                    cout << "Available flights:\n";
-                    for (auto f : avail)
-                        f->display();
-                    int fn;
-                    cout << "Select Flight No: ";
-                    if (!validIntInput(fn))
-                    {
-                        delete p;
-                        pressEnter();
-                        continue;
-                    }
-                    Flight *fsel = nullptr;
-                    for (auto f : avail)
-                        if (f->getFlightNo() == fn)
-                            fsel = f;
-                    if (!fsel)
-                    {
-                        cout << "Invalid flight\n";
-                        delete p;
-                        pressEnter();
-                        continue;
-                    }
-                    cout << "Enter Class(E/B/F) and number of seats: ";
-                    cin >> cls >> seats;
-                    if (!fsel->bookSeat(cls, seats))
-                    {
-                        cout << "Not enough seats\n";
-                        delete p;
-                        pressEnter();
-                        continue;
-                    }
-                    Booking *b = new Booking(Booking::generatePNR(), p, fsel, cls, seats);
-                    cout << "Enter number of companions: ";
-                    if (!validIntInput(numComp))
-                    {
-                        delete b;
-                        delete p;
-                        pressEnter();
-                        continue;
-                    }
-                    for (int i = 0; i < numComp; i++)
-                    {
-                        string n;
-                        int a;
-                        cout << "Companion Name and Age: ";
-                        cin >> n >> a;
-                        b->addCompanion(n, a);
-                    }
-                    b->saveToFile();
-                    fsel->updateFile();
-                    delete b;
-                }
-                delete p;
-                pressEnter();
-            }
-            else if (choice == 2)
-            {
-                ifstream fin("passengers.csv");
-                string line;
-                cout << "Passengers:\n";
-                while (getline(fin, line))
-                    cout << line << endl;
-                fin.close();
-                pressEnter();
-            }
-            else if (choice == 3)
-            {
-                int pid, numComp;
-                cout << "Passenger ID: ";
-                if (!validIntInput(pid))
-                {
-                    pressEnter();
-                    continue;
-                }
-                Passenger *p = Passenger::getPassengerByID(pid);
-                if (!p)
-                {
-                    cout << "Passenger not found\n";
-                    pressEnter();
-                    continue;
-                }
-                string src, dest, cls;
-                int seats;
-                cout << "Enter Source and Destination: ";
-                cin >> src >> dest;
-                vector<Flight *> avail;
-                for (auto f : flights)
-                    if (f->getFrom() == src && f->getTo() == dest)
-                        avail.push_back(f);
-                if (avail.empty())
-                {
-                    cout << "No flights available\n";
-                    delete p;
-                    pressEnter();
-                    continue;
-                }
-                cout << "Available flights:\n";
-                for (auto f : avail)
-                    f->display();
-                int fn;
-                cout << "Select Flight No: ";
-                if (!validIntInput(fn))
-                {
-                    delete p;
-                    pressEnter();
-                    continue;
-                }
-                Flight *fsel = nullptr;
-                for (auto f : avail)
-                    if (f->getFlightNo() == fn)
-                        fsel = f;
-                if(!fsel)
-                {
-                    cout << "Invalid flight\n";
-                    delete p;
-                    pressEnter();
-                    continue;
-                }
-                cout << "Enter Class(E/B/F) and number of seats: ";
-                cin >> cls >> seats;
-                if(!fsel->bookSeat(cls, seats))
-                {
-                    cout << "Not enough seats\n";
-                    delete p;
-                    pressEnter();
-                    continue;
-                }
-                Booking *b = new Booking(Booking::generatePNR(), p, fsel, cls, seats);
-                cout << "Enter number of companions: ";
-                if (!validIntInput(numComp))
-                {
-                    delete b;
-                    delete p;
-                    pressEnter();
-                    continue;
-                }
-                for (int i = 0; i < numComp; i++)
-                {
-                    string n;
-                    int a;
-                    cout << "Companion Name and Age: ";
-                    cin >> n >> a;
-                    b->addCompanion(n, a);
-                }
-                b->saveToFile();
-                fsel->updateFile();
-                delete b;
-                delete p;
-                pressEnter();
-            }
-            else if(choice == 4)
-            {
-                string pnr;
-                cout << "Enter PNR to cancel: ";
-                cin >> pnr;
-                ifstream fin("bookings.csv");
-                vector<string> lines;
-                string line;
-                bool found = false;
-                while (getline(fin, line))
-                {
-                    stringstream ss(line);
-                    string token;
-                    getline(ss, token, ',');
-                    if (token == pnr)
-                    {
-                        found = true;
-                        continue;
-                    }
-                    lines.push_back(line);
-                }
-                fin.close();
-                if (!found)
-                {
-                    cout << "PNR not found\n";
-                    pressEnter();
-                    continue;
-                }
-                ofstream fout("bookings.csv");
-                for (auto &l : lines)
-                    fout << l << "\n";
-                fout.close();
-                cout << "Booking cancelled.\n";
-                pressEnter();
-            }
-            else if(choice == 5)
-            {
-                ifstream fin("bookings.csv");
-                string line;
-                cout << "Bookings:\n";
-                while (getline(fin, line))
-                    cout << line << endl;
-                fin.close();
-                pressEnter();
-            }
-            else if(choice == 6)
-            {
-                int pid;
-                cout << "Enter Passenger ID to update info: ";
-                if (!validIntInput(pid))
-                {
-                    pressEnter();
-                    continue;
-                }
-                Passenger *p = Passenger::getPassengerByID(pid);
-                if (!p)
-                  {
-                    cout << "Passenger not found\n";
-                    pressEnter();
-                    continue;
-                }
-                updatePassengerInfo(*p);
-                delete p;
-                pressEnter();
-            }
 
-        } while (choice != 0);
+    void REGISTER_USER() override{
+        cout<<"=======================REGISTER NEW ADMIN=============================\n";
+        
+        cout<<"CREATE ADMIN ID : ";
+        cin>>USER_ID;
 
-        for (auto f : flights)
-            delete f;
+        cout<<"ENTER THE NAME : ";
+        cin.ignore();
+        getline(cin,USER_NAME);
+
+        cout<<"CREATE PASSWORD : ";
+        cin>>USER_PASS;
+
+        ofstream out("ADMIN_DETAILS.txt",ios::app);
+        out<<"ADMIN ID : "<<USER_ID<<"\n"<<"ADMIN NAME : "<<USER_NAME<<"\n"<<"PASSWORD : "<<USER_PASS<<"\n"<<"-------------------------------------------------\n";
+        cout<<"\nADMIN REGISTRATION SUCCESFULLY!!!!!!!!!\n";
     }
+};
+
+class CUSTOMER_USER:public USER{
+    public:
+        bool LOGIN() override{
+            cout<<"ENTER CUSTOMER ID : ";
+            cin>>USER_ID;
+
+            cout<<"ENTER THE CUSTOMER NAME : ";
+            cin>>USER_NAME;
+
+            cout<<"ENTER THE PASSWORD : ";
+            cin>>USER_PASS;
+
+            ifstream in("CUSTOMER_DETAILS.txt");
+            if(!in){
+                cout<<"\nNO CUSTOMER FOUND!!!!! PLEASE FIRST REGISTER!!!!!!!\n";
+                return false;
+            }
+
+            string CUSTOMER_ID;
+            string CUSTOMER_NAME;
+            string CUSTOMER_PASS;
+
+            string line;
+            bool found=false;
+
+            while(getline(in,line)){
+                if(line.find("CUTOMER ID : ")!=string::npos){
+
+                    CUSTOMER_ID=line.substr(line.find(":")+2);  
+                    getline(in,line); 
+
+                    CUSTOMER_NAME=line.substr(line.find(":")+2);
+                    getline(in,line); 
+
+                    CUSTOMER_PASS=line.substr(line.find(":")+2);
+
+                    if(CUSTOMER_ID==USER_ID && CUSTOMER_PASS==USER_PASS){
+                        USER_NAME = CUSTOMER_NAME;
+                        cout << "\nCUSTOMER LOGIN SUCCESSFULL!!!\n";
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!found){
+                cout<<"\nINVALID CUSTOMER DETAILS!!!! SORRY!!!!\n";
+                return false;
+            }
+            return true;
+        }
+
+        void REGISTER_USER() override{
+            cout<<"\n==============REGISTER NEW CUSTOMER===================\n";
+            
+            cout<<"CREATE CUSTOMER ID : ";
+            cin>>USER_ID;
+
+            cout<<"ENTER THE NAME OF THE CUSTOMER : ";
+            cin.ignore();
+            getline(cin,USER_NAME);
+
+            cout<<"CREATE THE PASSWORD : ";
+            cin>>USER_PASS;
+
+            ofstream out("CUSTOMER_DETAILS.txt",ios::app);
+            out<<"CUTOMER ID : "<<USER_ID<<"\n"<<"NAME : "<<USER_NAME<<"\n"<<"PASSWORD : "<<USER_PASS<<"\n"<<"----------------------------------------------\n";
+            cout<<"\nCUTOMER REGISTED SUCCEFULLY!!!!!!!\n";
+        }
+};
+
+class Passenger{
+    protected:
+        int PERSON_ID;
+        string PASSENGER_NAME;
+        int Age;
+        string GENDER;
+
+    public:
+        Passenger(){
+            PERSON_ID=0;
+            PASSENGER_NAME="";
+            Age=0;
+            GENDER="";
+        }
+
+        Passenger(int ID,string name,int age,string gender){
+            PERSON_ID=ID;
+            PASSENGER_NAME=name;
+            Age=age;
+            GENDER=gender;
+        }
+
+        ~Passenger(){
+
+        }
+
+        virtual void SAVE_PASSENGER_DETAILS(){
+            ifstream in("PASSENGER_Details.txt");
+
+            string line;
+            bool exist=false;
+
+            while(getline(in,line)){
+                if(line.find("PASSENGER ID : "+to_string(PERSON_ID))!=string::npos){
+                    exist=true;
+                    break;
+                }
+            }
+            in.close();
+
+            if(exist){
+                cout << "\nPASSENGER ALREADY EXIST!!!! SORRY WE CAN'T ADD!!!!" << "\n";
+                return;
+            }
+            else{
+                ofstream out("PASSENGER_Details.txt",ios::app);
+                out<<"PASSENGER ID : "<<PERSON_ID<<"\n"<<"PASSENGER NAME : "<<PASSENGER_NAME << "\n"<<"AGE : "<<Age<<"\n"<<"GENDER : "<<GENDER<<"\n"<<"----------------------------"<<"\n";
+                out.close();
+            }
+            cout<<"\nPASSENGER DETAILS SAVED!!!"<<"THANK YOU!!!"<<"\n\n";
+        }
+
+        virtual void SHOW_PASSENGERS_DETAILS(){
+            cout<<"PASSENGER ID : "<<PERSON_ID<<"\n";
+            cout<<"PASSENGER NAME : "<<PASSENGER_NAME<<"\n";
+            cout<<"AGE : "<<Age<<"\n";
+            cout<<"GENDER : "<<GENDER<<"\n";
+        }
+
+    friend void SHOW_ALL_PASSENGERS();
+};
+
+class FLIGHT{
+    protected:
+        string FLIGHT_NO;
+        string FLIGHT_NAME;
+        string TAKE_OFF_FROM;
+        string LAND_TO;
+        string DATE;
+        string TIME;
+        double PRICE;
+
+    public:
+        FLIGHT(){
+            FLIGHT_NO="";
+            FLIGHT_NAME="";
+            TAKE_OFF_FROM="";
+            LAND_TO="";
+            DATE="";
+            TIME="";
+            PRICE=0.0;
+        }
+
+        FLIGHT(string FLIGHT_NUMBER,string AIRLINE,string FLIGHT_TAKE_OFF,string FLIGHT_LAND,string FLIGHT_DATE,string FLIGHT_TIME,double price){
+            FLIGHT_NO=FLIGHT_NUMBER;
+            FLIGHT_NAME=AIRLINE;
+            TAKE_OFF_FROM=FLIGHT_TAKE_OFF;
+            LAND_TO=FLIGHT_LAND;
+            DATE=FLIGHT_DATE;
+            TIME=FLIGHT_TIME;
+            PRICE=price;
+        }
+
+        ~FLIGHT(){
+            
+        }
+
+        virtual void SAVE_FLIGHT_DETAILS(){
+            ifstream in("FLIGHT_details.txt");
+
+            string line;
+            bool exist=false;
+
+            string flightLine="FLIGHT NUMBER : "+FLIGHT_NO;
+            string fromLine="FROM : "+TAKE_OFF_FROM;
+            string destLine="DESTINATION : "+LAND_TO;
+
+            while(getline(in, line)){
+                if(line==flightLine){
+
+                    string tempFrom;
+                    string tempDest;
+                    getline(in,tempFrom); 
+                    getline(in,tempDest); 
+
+                    if(tempFrom==fromLine && tempDest==destLine){
+                        exist=true;
+                        break;
+                    }
+                }
+            }
+            in.close();
+
+            if(exist){
+                cout<<"THE FLIGHT ALREADY EXISTS FOR THIS ROUTE!!!! SORRY WE CAN'T ADD!!!\n\n";
+                return;
+            }   
+            else{
+            ofstream out("FLIGHT_details.txt",ios::app);
+            out<<"FLIGHT NUMBER : "<<FLIGHT_NO<<"\n"<<"AIRLINE : "<<FLIGHT_NAME<<"\n"<<"FROM : "<<TAKE_OFF_FROM<<"\n"<<"DESTINATION : "<<LAND_TO<<"\n"<<"DATE : "<<DATE<<"\n"<<"TIME : "<<TIME<<"\n"<<"PRICE : "<<PRICE<<"\n"<<"-------------------------------------"<<"\n";
+            out.close();
+        }
+        cout<<"\nFLIGHT ADD SUCCESFULLY!!!! NOW LET'S FLY!!!!!!"<<"\n\n";
+    }
+
+        virtual void SHOW_FLIGHT_DETAILS(){
+            cout<<"FLIGHT NUMBER : "<<FLIGHT_NO<<"\n";
+            cout<<"FROM : "<<TAKE_OFF_FROM<<"\n";
+            cout<<"DESTINATION : "<<LAND_TO<<"\n";
+            cout<<"DATE : "<<DATE<<"\n";
+            cout<<"TIME : "<<TIME<<"\n";
+            cout<<"PRICE : "<<PRICE<<"\n";
+        }
+
+    friend void SHOW_ALL_FLIGHTS();
+};
+
+class BOOKING:public Passenger,public FLIGHT{
+    protected:
+        int BOOKING_ID;
+        static int COUNTER;
+
+    public:
+        BOOKING(){
+            BOOKING_ID = 0;
+        }
+
+        BOOKING(int ID,string name,int PASSENGER_AGE,string Passenger_gender,string FL_NUMBER,string AIRLINE,string Take,string DESTI,string date,string time,double price):Passenger(ID,name,PASSENGER_AGE,Passenger_gender),FLIGHT(FL_NUMBER,AIRLINE,Take,DESTI,date,time,price){
+            BOOKING_ID=++COUNTER;
+            savecounter(COUNTER);
+        }
+
+        ~BOOKING(){
+
+        }
+
+        void SAVE_BOOKINGS(){
+            ofstream out("BOOKING_DETAILS.txt",ios::app);
+            out<<"BOOKING ID : "<<BOOKING_ID<<"\n"<<"PASSENGERS ID : "<<PERSON_ID<<"\n"<<"PASSENGER NAME : "<<PASSENGER_NAME<<"\n"<<"PASSENGER AGE : "<<Age <<"\n"<<"PASSENGER GENDER : "<<GENDER<<"\n"<<"FLIGHT NUMBER : "<<FLIGHT_NO<<"\n"<<"FROM : "<<TAKE_OFF_FROM<<"\n"<<"DESTINATION : "<<LAND_TO<<"\n"<<"DATE : "<<DATE<<"\n"<<"TIME : "<<TIME<<"\n"<<"PRICE : "<<PRICE<<"\n"<<"---------------------------------------\n";
+            out.close();
+        }
+
+        void SHOW_PASSENGERS_DETAILS() override{
+            cout<<"BOOKING ID : "<<BOOKING_ID<<"\n";
+            Passenger::SHOW_PASSENGERS_DETAILS();
+        }
+
+        void SHOW_FLIGHT_DETAILS() override{
+            cout<<"\n--- BOOKING'S FLIGHT DETAILS ---\n";
+            cout<<"BOOKING ID : "<<BOOKING_ID<<"\n";
+            FLIGHT::SHOW_FLIGHT_DETAILS(); 
+        }
+
+        void SHOW_ALL_BOOKINGS(){
+            ifstream in("BOOKING_DETAILS.txt");
+
+            if(!in){
+                cout<<"\nNO ANY BOOKING!!!!!!! SORRY!!!!!\n\n";
+                return;
+            }
+
+            cout<<"\n========================ALL BOOKINGS=================================\n";
+            string line;
+            while(getline(in,line)){
+                cout<<line<<"\n";
+            }
+            cout<<"\n";
+            in.close();
+        }
+
+        bool operator==(const BOOKING &b){
+            return BOOKING_ID == b.BOOKING_ID;
+        }
+
+    static int loadcounter(){
+        ifstream in("BOOKING_COUNTER.txt");
+        int c=0;
+        if(in){
+            in>>c;
+        }
+        in.close();
+        return c;
+    }
+
+    void savecounter(int c){
+        ofstream out("BOOKING_COUNTER.txt");
+        out<<c;
+        out.close();
+    }
+
+    friend void SHOW_BOOKING_FRIEND(const BOOKING &b);
+    friend void SHOW_ALL_CANCELLATION_BOOKINGS();
+};
+
+int BOOKING::COUNTER=BOOKING::loadcounter();
+
+class CANCEL_BOOKINGS:public Passenger,public FLIGHT{
+    public:
+        int BID;
+
+        CANCEL_BOOKINGS(int BOOKING_ID,int ID,string name,int age,string gender,string flight_no,string airline,string from,string to,string date,string time,double price):Passenger(ID,name,age,gender),FLIGHT(flight_no,airline,from,to,date,time,price){
+            BID=BOOKING_ID;
+        }
+
+        CANCEL_BOOKINGS(int BOOKING_ID, int ID, string name, string flight_no){
+            BID=BOOKING_ID;
+            PERSON_ID=ID;
+            PASSENGER_NAME=name;
+            FLIGHT_NO=flight_no;
+        }
+
+        void CANCEL_BOOKING(){
+            ifstream inFile("BOOKING_DETAILS.txt");
+            ofstream tempFile("temp.txt");
+            ofstream cancel("CANCEL_BOOING_DETAILS.txt",ios::app);
+
+            string line;
+            bool skip=false;
+            bool found=false;
+
+            while(getline(inFile, line)){
+                if(line.find("BOOKING ID : "+to_string(BID))!=string::npos){
+                    skip=true;
+                    found=true;
+                }
+
+                if(skip){
+                    cancel<<line<<"\n";
+                }
+                else{
+                    tempFile<<line<<"\n";
+                }
+
+                if(skip && line.find("---------------------------------------")!=string::npos){
+                    skip=false;
+                }
+            }
+            inFile.close();
+            tempFile.close();
+            cancel.close();
+
+        if (!found){
+            cout<<"BOOKING ID NOT FOUND!!!!"<<"\n";
+            remove("temp.txt");
+            return;
+        }
+
+        remove("BOOKING_DETAILS.txt");
+        rename("temp.txt", "BOOKING_DETAILS.txt");
+
+        cout<<"\nBOOKING CANCELLED SUCCESFULLY!!!!! GOOD!!!!\n\n";
+    }
+};
+
+void SHOW_BOOKING_FRIEND(const BOOKING &b)
+{
+    cout<<"BOOKING ID : "<<b.BOOKING_ID<<"\n";
+    cout<<"PASSENGER ID : "<<b.PERSON_ID<<"\n";
+    cout<<"PASSENGER NAME : "<<b.PASSENGER_NAME<<"\n";
+}
+
+void SHOW_ALL_PASSENGERS(){
+    ifstream in("PASSENGER_Details.txt");
+
+    if(!in){
+        cout<<"THERE IS NO ANY PASSENGER!!!!! SORRY!!!!"<<"\n";
+        return;
+    }
+
+    cout<<"\n===========================ALL PASSENGERS==========================\n";
+
+    string line;
+    while(getline(in, line)){
+        cout<<line<<"\n";
+    }
+    cout<<"\n";
+    in.close();
+}
+
+void SHOW_ALL_FLIGHTS(){
+    ifstream in("FLIGHT_details.txt");
+
+    if(!in){
+        cout<<"NO FLIGHT IS THERE!!!! SORRY!!!!"<<"\n";
+        return;
+    }
+    cout<<"\n==============================ALL FLIGHTS==============================\n";
+    
+    string line;
+    while(getline(in, line)){
+        cout<<line<<"\n";
+    }
+    cout<<"\n";
+    in.close();
+}
+
+void SHOW_ALL_CANCELLATION_BOOKINGS(){
+    ifstream in("CANCEL_BOOING_DETAILS.txt");
+    
+    if(!in){
+        cout<<"NO CANCELLATION IS THERE!!!!!  ENJOY!!!!"<<"\n";
+        return;
+    }
+
+    cout<<"\n=================================ALL CANCELATION BOOKINGS============================\n";
+    
+    string line;
+    while(getline(in, line)){
+        cout<<line<<"\n";
+    }
+    cout<<"\n";
+    in.close();
+}
+
+void ADMIN_MENU(){
+    int CHOOSE;
+    do{
+        cout<<"===========ADMIN MENU============\n";
+        cout<<"1 ADD FLIGHT\n";
+        cout<<"2 VIEW FLIGHS\n";
+        cout<<"3 VIEW PASSENGERS\n";
+        cout<<"4 VIEW BOOKINGS\n";
+        cout<<"5 VIEW CANCEL BOOKINGS\n";
+        cout<<"6 LOGOUT\n";
+
+        try{
+            cout<<"ENTER YOUR CHOICE : ------------------------------>";
+            if(!(cin>>CHOOSE)){
+                throw runtime_error("INVALID INPUT!!!!!\n");
+            }
+        }
+        catch(const exception &e){
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(),'\n');
+            CHOOSE=0;
+        }
+
+        switch(CHOOSE){
+            case 1:
+            {
+                string FLIGHT_NO;
+                string AIRLINE;
+                string FROM;
+                string TO;
+                string DATE;
+                string TIME;
+                double price;
+
+                cout<<"FLIGHT NUMBER : ";
+                cin>>FLIGHT_NO;
+
+                cout<<"AIRLINE NAME : ";
+                cin>>AIRLINE;
+
+                cout<<"FORM : ";
+                cin>>FROM;
+
+                cout<<"TO : ";
+                cin>>TO;
+
+                cout<<"DATE : ";
+                cin>>DATE;
+
+                cout<<"TIME : ";
+                cin>>TIME;
+
+                cout<<"PRICE : ";
+                cin>>price;
+                
+                FLIGHT flight(FLIGHT_NO,AIRLINE,FROM,TO,DATE,TIME,price);
+                flight.SAVE_FLIGHT_DETAILS();
+                break;
+            }
+
+            case 2:
+            {
+                SHOW_ALL_FLIGHTS();
+                break;
+            }
+
+            case 3:
+            {
+                SHOW_ALL_PASSENGERS();
+                break;
+            }
+
+            case 4:
+            {
+                BOOKING b;
+                b.SHOW_ALL_BOOKINGS();
+                break;
+            }
+
+            case 5:
+            {
+                SHOW_ALL_CANCELLATION_BOOKINGS();
+                break;
+            }
+
+            case 6:
+            {
+                cout<<"\nLOG OUT!!!! THANK YOU!!!"<<"\n\n";
+                break;
+            }
+
+            default:
+                cout<<"\nINVALID INPUT!!!!\n\n";
+                break;
+        }
+    }while(CHOOSE!=6);
+}
+
+void CUSTOMER_MENU(){
+    int choose;
+
+    do{
+        cout<<"==============CUSTOMER MENU=================\n";
+        cout<<"1 ADD PASSENGER\n";
+        cout<<"2 VIEW FLIGHTS\n";
+        cout<<"3 BOOK TICKET\n";
+        cout<<"4 CANCEL TICKET\n";
+        cout<<"5 LOGOUT\n";
+
+        try{
+            cout<<"ENTER YOUR CHOICE : ------------------------------>";
+            if(!(cin>>choose)){
+                throw runtime_error("INVALID INPUT!!!!!\n");
+            }
+        }
+        catch(const exception &e){
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(),'\n');
+            choose=0;
+        }
+
+        switch(choose){
+            case 1:
+            {
+                int id;
+                string name;
+                int age;
+                string gender;
+
+                cout<<"PASSENGER ID : ";
+                cin>>id;
+
+                cout<<"ENTER THE NAME : ";
+                cin.ignore();
+                getline(cin,name);
+
+                cout<<"AGE : ";
+                cin>>age;
+
+                cout<<"GENDER : ";
+                cin>>gender;
+                Passenger P(id,name,age,gender);
+                P.SAVE_PASSENGER_DETAILS();
+                break;
+            }
+
+            case 2:
+            {
+                SHOW_ALL_FLIGHTS();
+                break;
+            }
+
+            case 3:
+            {
+                int ID;
+                string NAME;
+                int AGE;
+                string GENDER;
+                string FLIGHT_NO;
+                string AIRLINE;
+                string FROM;
+                string TO;
+                string DATE;
+                string TIME;
+                double price;
+
+                cout<<"PASSENGER ID : ";
+                cin>>ID;
+
+                cout<<"NAME : ";
+                cin>>NAME;
+
+                cout<<"AGE : ";
+                cin>>AGE;
+
+                cout<<"GENDER : ";
+                cin>>GENDER;
+                
+                cout<<"\n======================AVAILABLE FLIGHTS=====================\n";
+                SHOW_ALL_FLIGHTS();
+                
+                cout<<"FLIGHT NUMBER : ";
+                cin>>FLIGHT_NO;
+
+                cout<<"AIRLINE : ";
+                cin.ignore();
+                getline(cin,AIRLINE);
+
+                cout<<"FROM : ";
+                cin>>FROM;
+
+                cout<<"TO : ";
+                cin>>TO;
+
+                cout<<"DATE : ";
+                cin>>DATE;
+
+                cout<<"TIME : ";
+                cin>>TIME;
+
+                cout<<"PRICE : ";
+                cin>>price;
+                try{
+                    BOOKING *b=new BOOKING(ID,NAME,AGE,GENDER,FLIGHT_NO,AIRLINE,FROM,TO,DATE,TIME,price);
+                    b->SAVE_BOOKINGS();
+                    delete b;
+                }
+                catch(const bad_alloc &e){
+                    cout<<"MEMORY ALLOCATION FAILED"<<"\n";
+                }
+               
+                break;
+            }
+
+            case 4:
+            {
+                int bid;
+                int id;
+                string name;
+                string flight_no;
+
+                cout<<"ENTER BOOKING ID : ";
+                cin>>bid;
+
+                cout<<"ENTER THE PASSENGER ID : ";
+                cin>>id;
+
+                cout<<"ENTER THE NAME : ";
+                cin.ignore();
+                getline(cin,name);
+
+                cout<<"ENTER THE FLIGHT NUMBER : ";
+                cin>>flight_no;
+
+                CANCEL_BOOKINGS cancel(bid,id,name,flight_no);
+                cancel.CANCEL_BOOKING();
+                break;
+            }
+
+            case 5:
+            {
+                cout<<"\nLOG OUT!!!! THANK YOU!!!"<<"\n\n";
+                break;
+            }
+
+            default:
+                cout<<"\nINVALID INPUT!!!!\n\n";
+                break;
+        }
+    }while(choose!=5);
+}
+
+int main()
+{
+    int choose;
+    do{
+        cout<<"=======FLIGHT RESERVATION SYSTEM==============\n";
+        cout<<"1 ADMIN LOGIN"<<"\n";
+        cout<<"2 ADMIN REGISTRATION"<<"\n";
+        cout<<"3 CUSTOMER LOGIN"<<"\n";
+        cout<<"4 CUSTOMER REGISTRATION"<<"\n";
+        cout<<"5 EXIT"<<"\n";
+
+        try{
+            cout<<"ENTER YOUR CHOICE : ------------------------------>";
+            if(!(cin>>choose)){
+                throw runtime_error("INVALID INPUT!!!!!\n");
+            }
+        }
+        catch(const exception &e){
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(),'\n');
+            choose=0;
+        }
+
+        switch(choose){
+            case 1:
+            {
+                ADMIN_CLASS ADMIN;
+                if(ADMIN.LOGIN()){
+                    ADMIN_MENU();
+                }
+                else{
+                    char ans;
+                    cout<<"\nDO YOU WANT TO REGISTER NEW ADMIN(y/n) : ";
+                    cin>>ans;
+
+                    if(ans=='y' || ans=='Y'){
+                        ADMIN.REGISTER_USER();
+                    }
+                }
+                break;
+            }
+
+            case 2:
+            {
+                ADMIN_CLASS ADMIN;
+                ADMIN.REGISTER_USER();
+                break;
+            }
+
+            case 3:
+            {
+                CUSTOMER_USER CUSTOMER;
+                if(CUSTOMER.LOGIN()){
+                    CUSTOMER_MENU();
+                }
+                else{
+                    char ans;
+                    cout<<"DO YOU WANT TO REGISTER THE NEW CUSTOMER(y/n) : ";
+                    cin>>ans;
+
+                    if(ans=='y' || ans=='Y'){
+                        CUSTOMER.REGISTER_USER();
+                    }
+                }
+                break;
+            }
+
+            case 4:
+            {
+                CUSTOMER_USER customer;
+                customer.REGISTER_USER();
+                break;
+            }
+
+            case 5:
+            {
+                cout<<"\n EXITING SYSTEM!!!! BYEE BYE!!!!!!!!!!";
+                return 0;
+            }
+
+            default:
+                cout<<"\nINVALID INPUT!!!\n\n";
+        }
+    }while(choose!=5);
+}
