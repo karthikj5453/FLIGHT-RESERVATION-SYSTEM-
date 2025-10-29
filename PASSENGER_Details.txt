@@ -1,0 +1,10 @@
+PASSENGER ID : 21
+PASSENGER NAME : ME
+AGE : 18
+GENDER : male
+----------------------------
+PASSENGER ID : 23
+PASSENGER NAME : asd
+AGE : 21
+GENDER : 34
+----------------------------
