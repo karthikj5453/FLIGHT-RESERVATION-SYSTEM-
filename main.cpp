@@ -290,7 +290,7 @@ class FLIGHT{
             in.close();
 
             if(exist){
-                cout<<"THE FLIGHT ALREADY EXISTS FOR THIS ROUTE!!!! SORRY WE CAN'T ADD!!!\n\n";
+                cout<<"THE FLIGHT ALREADY EXISTS !!!! SORRY WE CAN'T ADD!!!\n\n";
                 return;
             }   
             else{
@@ -847,4 +847,5 @@ int main()
         }
     }while(choose!=5);
 }
+
 
