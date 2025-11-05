@@ -272,13 +272,16 @@ class FLIGHT{
 
             while(getline(in, line)){
                 if(line==flightLine){
-
+                      string airline;
                     string tempFrom;
                     string tempDest;
                     getline(in,tempFrom); 
                     getline(in,tempDest); 
+                      getline(in,DATE);
+                    getline(in,TIME);
+                    getline(in,line); 
 
-                    if(tempFrom==fromLine && tempDest==destLine){
+                   if(airline==airlineLine && tempFrom==fromLine && tempDest==destLine && DATE==DATE && TIME==TIME){
                         exist=true;
                         break;
                     }
@@ -844,3 +847,4 @@ int main()
         }
     }while(choose!=5);
 }
+
