@@ -56,8 +56,7 @@ class ADMIN_CLASS:public USER{
                 
                 ADMIN_PASS=line.substr(line.find(":") + 2);
 
-                if(ADMIN_ID==USER_ID && ADMIN_PASS==USER_PASS){
-                    USER_NAME=NAME;
+                if(ADMIN_ID==USER_ID && ADMIN_PASS==USER_PASS && NAME==USER_NAME){
                     cout<<"\nADMIN LOGIN SUCCESFULLY!!!!!!!\n";
                     found=true;
                     break;
@@ -128,8 +127,7 @@ class CUSTOMER_USER:public USER{
 
                     CUSTOMER_PASS=line.substr(line.find(":")+2);
 
-                    if(CUSTOMER_ID==USER_ID && CUSTOMER_PASS==USER_PASS){
-                        USER_NAME = CUSTOMER_NAME;
+                    if(CUSTOMER_ID==USER_ID && CUSTOMER_PASS==USER_PASS && CUSTOMER_NAME==USER_NAME){
                         cout << "\nCUSTOMER LOGIN SUCCESSFULL!!!\n";
                         found = true;
                         break;
@@ -158,8 +156,8 @@ class CUSTOMER_USER:public USER{
             cin>>USER_PASS;
 
             ofstream out("CUSTOMER_DETAILS.txt",ios::app);
-            out<<"CUTOMER ID : "<<USER_ID<<"\n"<<"NAME : "<<USER_NAME<<"\n"<<"PASSWORD : "<<USER_PASS<<"\n"<<"----------------------------------------------\n";
-            cout<<"\nCUTOMER REGISTED SUCCEFULLY!!!!!!!\n";
+            out<<"CUSTOMER ID : "<<USER_ID<<"\n"<<"NAME : "<<USER_NAME<<"\n"<<"PASSWORD : "<<USER_PASS<<"\n"<<"----------------------------------------------\n";
+            cout<<"\nCUSTOMER REGISTED SUCCESFULLY!!!!!!!\n";
         }
 };
 
@@ -194,7 +192,7 @@ class Passenger{
 
             string line;
             bool exist=false;
-
+ 
             while(getline(in,line)){
                 if(line.find("PASSENGER ID : "+to_string(PERSON_ID))!=string::npos){
                     exist=true;
@@ -272,16 +270,13 @@ class FLIGHT{
 
             while(getline(in, line)){
                 if(line==flightLine){
-                      string airline;
+
                     string tempFrom;
                     string tempDest;
                     getline(in,tempFrom); 
                     getline(in,tempDest); 
-                      getline(in,DATE);
-                    getline(in,TIME);
-                    getline(in,line); 
 
-                   if(airline==airlineLine && tempFrom==fromLine && tempDest==destLine && DATE==DATE && TIME==TIME){
+                    if(tempFrom==fromLine && tempDest==destLine){
                         exist=true;
                         break;
                     }
@@ -290,7 +285,7 @@ class FLIGHT{
             in.close();
 
             if(exist){
-                cout<<"THE FLIGHT ALREADY EXISTS !!!! SORRY WE CAN'T ADD!!!\n\n";
+                cout<<"THE FLIGHT ALREADY EXISTS FOR THIS ROUTE!!!! SORRY WE CAN'T ADD!!!\n\n";
                 return;
             }   
             else{
@@ -847,5 +842,3 @@ int main()
         }
     }while(choose!=5);
 }
-
-
